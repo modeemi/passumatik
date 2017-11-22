@@ -25,7 +25,7 @@ format_method = {
     "SHA512"      : method_from_crypt(crypt.METHOD_SHA512),
     "SHA256"      : method_from_crypt(crypt.METHOD_SHA256),
     "MD5"         : method_from_crypt(crypt.METHOD_MD5),
-    "LINUX-CRYPT" : method_from_crypt(crypt.METHOD_CRYPT),
+    "DES"         : method_from_crypt(crypt.METHOD_CRYPT),
     "rot13"       : rot13 # example; not used unless 'rot13' is listed in the format table
 }
 
