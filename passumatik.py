@@ -72,6 +72,7 @@ def main():
                     updated_count = updated_count + 1
             if updated_count == 0:
                 raise NoPasswordsException()
+            db.prepare("UPDATE shadow SET lastchanged=ROUND(EXTRACT(EPOCH FROM NOW())/86400) WHERE username=$1")(username)
             print("Päivitetty {} salasana{}".format(updated_count, "a" if updated_count != 1 else ""))
     except NoPasswordsException:
         print("Ei yhteensopivia salasanoja kannassa; ei poistettu vanhoja")
