@@ -52,6 +52,11 @@ def main():
         return
     print("Syötä uusi salasana")
     new_password = getpass.getpass()
+    print("Uudestaan!")
+    new_password2 = getpass.getpass()
+    if new_password != new_password2:
+        print("Uh oh, ei tainnut nappulat osua kohdalleen. Uudestaan!")
+        return
     try:
         with db.xact() as x:
             formats = [ format[0] for format in db.prepare("SELECT format FROM format")() ]
