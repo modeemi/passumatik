@@ -29,6 +29,9 @@ format_method = {
     "rot13"       : rot13 # example; not used unless 'rot13' is listed in the format table
 }
 
+def password_complexity_requirements_check(password):
+    return len(password) >= 8
+
 def main():
     username = os.getenv("SUDO_USER")
     if not username:
@@ -50,8 +53,18 @@ def main():
     if not found_hash:
         print("Väärä salasana")
         return
-    print("Syötä uusi salasana")
-    new_password = getpass.getpass()
+    retries_left = 0
+    while True:
+        retries_left = retries_left - 1
+        print("Syötä uusi salasana")
+        new_password = getpass.getpass()
+        if password_complexity_requirements_check(new_password):
+            break;
+        else:
+            if retries_left == 0:
+                print("Ei näin.")
+                return
+            print("Yritä nyt edes, ei toi ole salasana")
     print("Uudestaan!")
     new_password2 = getpass.getpass()
     if new_password != new_password2:
