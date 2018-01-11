@@ -37,6 +37,9 @@ def main():
     if not username:
         print("Ei sinua olemassa. Mene pois.")
         return
+    superuser = username == "root"
+    if superuser and len(sys.argv) > 1:
+        username = sys.argv[1]
     db = postgresql.open('pq://modeemi/modeemiuserdb')
     old_hashes = [ hash[0] for hash in db.prepare("SELECT hash FROM shadowformat WHERE username=$1")(username) ]
     if not old_hashes:
