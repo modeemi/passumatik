@@ -9,6 +9,7 @@ import getpass
 import postgresql
 import crypt
 import codecs
+import pwd
 
 class NoPasswordsException(Exception):
     pass
@@ -33,6 +34,8 @@ def password_complexity_requirements_check(password):
     return len(password) >= 8
 
 def main():
+    if pwd.getpwuid(os.getuid()).pw_gecos != 'passumatik':
+        print("Huomaa että mahdollisesti tää ei toimi, ku nykyinen käyttäjä ei ole passumatik. (Käytä aina sudoa, roottinakin.)")
     username = os.getenv("SUDO_USER")
     if not username:
         print("Ei sinua olemassa. Mene pois.")
