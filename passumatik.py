@@ -40,7 +40,7 @@ def main():
     db = postgresql.open('pq://modeemi/modeemiuserdb')
     old_hashes = [ hash[0] for hash in db.prepare("SELECT hash FROM shadowformat WHERE username=$1")(username) ]
     if not old_hashes:
-        print("Tsorppa, ei sua löyty tietokannasta")
+        print("Tsorppa, ei sua ({}) löyty tietokannasta".format(username))
         return
     print("olet {}".format(username))
     print("syötä vanha salasana")
