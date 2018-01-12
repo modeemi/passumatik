@@ -34,8 +34,9 @@ def password_complexity_requirements_check(password):
     return len(password) >= 8
 
 def main():
-    if pwd.getpwuid(os.getuid()).pw_gecos != 'passumatik':
-        print("Huomaa että mahdollisesti tää ei toimi, ku nykyinen käyttäjä ei ole passumatik. (Käytä aina sudoa, roottinakin.)")
+    effective_username = pwd.getpwuid(os.geteuid()).pw_name
+    if effective_username != 'passumatik':
+        print("Huomaa että mahdollisesti tää ei toimi, ku nykyinen käyttäjä ei ole passumatik vaan {}. (Käytä aina sudoa, roottinakin.)".format(effective_username))
     username = os.getenv("SUDO_USER")
     if not username:
         print("Ei sinua olemassa. Mene pois.")
