@@ -34,7 +34,7 @@ format_method = {
 def password_complexity_requirements_check(password):
     return len(password) >= 8
 
-def change_password():
+def change_password(arguments):
     effective_username = pwd.getpwuid(os.geteuid()).pw_name
     if effective_username != 'passumatik':
         print("Huomaa että mahdollisesti tää ei toimi, ku nykyinen käyttäjä ei ole passumatik vaan {}. (Käytä aina sudoa, roottinakin.)".format(effective_username))
@@ -88,7 +88,7 @@ def change_password():
             current_formats = [ format[0] for format in db.prepare("SELECT format FROM shadowformat WHERE username=$1")(username) ]
             updated_count = 0
             for format in formats:
-                if format in format_method:
+                if arguments["allow_methods"](format) and format in format_method:
                     hash = format_method[format](new_password)
                     # needless upsert, there are not going to be conflicts..
                     db.prepare('''
@@ -103,21 +103,27 @@ def change_password():
     except NoPasswordsException:
         print("Ei yhteensopivia salasanoja kannassa; ei poistettu vanhoja")
 
-def list_methods():
+def list_methods(arguments):
     print("Kryptoalgoritmit:")
     db = postgresql.open('pq://modeemi/modeemiuserdb')
     formats = set([ format[0] for format in db.prepare("SELECT format FROM format")() ])
     for method, func in format_method.items():
-        print("{} ({})".format(method, "Käytössä" if method in formats else "Ei käytössä"))
+        if arguments["allow_methods"](method):
+            print("{} ({})".format(method, "Käytössä" if method in formats else "Ei käytössä"))
 
 def main():
     arg_parser = argparse.ArgumentParser(description='Vaihda modeemin salasana päätietokannasta')
     arg_parser.add_argument('--list-methods',
                             action='store_const', const=list_methods, dest='operation',
                             help='Näyttää tuetut salasanakryptausalgoritmit')
-    arg_parser.set_defaults(operation=change_password)
+    arg_parser.add_argument('--only-methods',
+                            action='store', dest='only_methods',
+                            default='',
+                            help='Listaa sallitut algoritmit, pilkulla erotettuna. Huomaa että tämä voi rajoittaa sitä, millä koneilla tunnus toimii.')
+    arg_parser.set_defaults(operation=change_password, only_methods='')
     results = arg_parser.parse_args()
-    results.operation()
+    env = { "allow_methods": lambda method: not results.only_methods or method in results.only_methods }
+    results.operation(env)
 
 if __name__ == "__main__":
     main ()
