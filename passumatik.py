@@ -10,6 +10,7 @@ import postgresql
 import crypt
 import codecs
 import pwd
+import argparse
 
 class NoPasswordsException(Exception):
     pass
@@ -33,7 +34,7 @@ format_method = {
 def password_complexity_requirements_check(password):
     return len(password) >= 8
 
-def main():
+def change_password():
     effective_username = pwd.getpwuid(os.geteuid()).pw_name
     if effective_username != 'passumatik':
         print("Huomaa että mahdollisesti tää ei toimi, ku nykyinen käyttäjä ei ole passumatik vaan {}. (Käytä aina sudoa, roottinakin.)".format(effective_username))
@@ -101,6 +102,20 @@ def main():
             print("Päivitetty {} salasana{}".format(updated_count, "a" if updated_count != 1 else ""))
     except NoPasswordsException:
         print("Ei yhteensopivia salasanoja kannassa; ei poistettu vanhoja")
-        
+
+def list_methods():
+    print("Kryptoalgoritmit:")
+    for method, func in format_method.items():
+        print(method)
+
+def main():
+    arg_parser = argparse.ArgumentParser(description='Vaihda modeemin salasana päätietokannasta')
+    arg_parser.add_argument('--list-methods',
+                            action='store_const', const=list_methods, dest='operation',
+                            help='Näyttää tuetut salasanakryptausalgoritmit')
+    arg_parser.set_defaults(operation=change_password)
+    results = arg_parser.parse_args()
+    results.operation()
+
 if __name__ == "__main__":
     main ()
