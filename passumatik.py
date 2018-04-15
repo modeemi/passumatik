@@ -86,7 +86,7 @@ def change_password(arguments):
             db.prepare("DELETE from shadowformat WHERE username=$1")(username)
             
             current_formats = [ format[0] for format in db.prepare("SELECT format FROM shadowformat WHERE username=$1")(username) ]
-            updated_count = 0
+            updated_formats = []
             for format in formats:
                 if arguments["allow_methods"](format) and format in format_method:
                     hash = format_method[format](new_password)
@@ -95,11 +95,13 @@ def change_password(arguments):
                         INSERT INTO shadowformat(username, format, hash, last_updated) VALUES ($1, $2, $3, DEFAULT)
                         ON CONFLICT(username, format) DO UPDATE SET hash=$3, last_updated=DEFAULT
                         ''')(username, format, hash)
-                    updated_count = updated_count + 1
-            if updated_count == 0:
+                    updated_formats.append(format)
+            if not updated_formats:
                 raise NoPasswordsException()
             db.prepare("UPDATE shadow SET lastchanged=ROUND(EXTRACT(EPOCH FROM NOW())/86400) WHERE username=$1")(username)
-            print("Päivitetty {} salasana{}".format(updated_count, "a" if updated_count != 1 else ""))
+            print("Päivitetty salasana{} muodo{}ssa {}".format("t" if len(updated_formats) != 1 else "",
+                                                               "i" if len(updated_formats) != 1 else "",
+                                                               ", ".join(updated_formats)))
     except NoPasswordsException:
         print("Ei yhteensopivia salasanoja kannassa; ei poistettu vanhoja")
 
