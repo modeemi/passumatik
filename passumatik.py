@@ -105,8 +105,10 @@ def change_password():
 
 def list_methods():
     print("Kryptoalgoritmit:")
+    db = postgresql.open('pq://modeemi/modeemiuserdb')
+    formats = set([ format[0] for format in db.prepare("SELECT format FROM format")() ])
     for method, func in format_method.items():
-        print(method)
+        print("{} ({})".format(method, "Käytössä" if method in formats else "Ei käytössä"))
 
 def main():
     arg_parser = argparse.ArgumentParser(description='Vaihda modeemin salasana päätietokannasta')
