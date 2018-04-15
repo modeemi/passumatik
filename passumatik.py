@@ -27,7 +27,7 @@ format_method = {
     "SHA256"      : method_from_crypt(crypt.METHOD_SHA256),
     "MD5"         : method_from_crypt(crypt.METHOD_MD5),
     "DES"         : method_from_crypt(crypt.METHOD_CRYPT),
-    "rot13"       : rot13 # example; not used unless 'rot13' is listed in the format table
+#    "rot13"       : rot13 # example; not used unless 'rot13' is listed in the format table
 }
 
 def password_complexity_requirements_check(password):
