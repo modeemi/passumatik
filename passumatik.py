@@ -55,7 +55,7 @@ def change_password(arguments):
         return
     superuser = username == "root"
     if superuser and len(sys.argv) > 1:
-        username = sys.argv[1]
+        username = arguments["user"]
     db = postgresql.open("pq://modeemi/modeemiuserdb")
     old_hashes = [
         hash[0]
@@ -66,17 +66,18 @@ def change_password(arguments):
     if not old_hashes:
         print("Tsorppa, ei sua ({}) löyty tietokannasta".format(username))
         return
-    print("olet {}".format(username))
-    print("syötä vanha salasana")
-    old_password = getpass.getpass()
-    found_hash = False
-    for old_hash in old_hashes:
-        if crypt.crypt(old_password, old_hash) == old_hash:
-            found_hash = True
-            break
-    if not found_hash:
-        print("Väärä salasana")
-        return
+    print("vaihdetaan salasanaa käyttäjälle {}".format(username))
+    if not superuser:
+        print("syötä vanha salasana")
+        old_password = getpass.getpass()
+        found_hash = False
+        for old_hash in old_hashes:
+            if crypt.crypt(old_password, old_hash) == old_hash:
+                found_hash = True
+                break
+        if not found_hash:
+            print("Väärä salasana")
+            return
     retries_left = 0
     while True:
         retries_left = retries_left - 1
@@ -168,11 +169,19 @@ def main():
         default="",
         help="Listaa sallitut algoritmit, pilkulla erotettuna. Huomaa että tämä voi rajoittaa sitä, millä koneilla tunnus toimii.",
     )
-    arg_parser.set_defaults(operation=change_password, only_methods="")
+    arg_parser.add_argument(
+        "--user",
+        action="store",
+        dest="user",
+        default="",
+        help="Muuta annetun käyttäjän salasanaa; toimii vain rootille.",
+    )
+    arg_parser.set_defaults(operation=change_password, only_methods="", user="")
     results = arg_parser.parse_args()
     env = {
         "allow_methods": lambda method: not results.only_methods
-        or method in results.only_methods
+        or method in results.only_methods,
+        "user": results.user
     }
     results.operation(env)
 
