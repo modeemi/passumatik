@@ -31,9 +31,9 @@ Host github.com-passumatik
 %modeemi        ALL=(passumatik)        NOPASSWD: /opt/passumatik/passumatik.py
 ```
 
-`/usr/local/bin/passumatik` is a symlink to /opt/passumatik/passumatik
+`/usr/local/bin/passumatik` is a symlink to /opt/passumatik/passumatik.sh
 ```
 root@coffee:~# ls -lh /usr/local/bin/passumatik
-lrwxrwxrwx 1 root root 26 Feb  3 08:03 /usr/local/bin/passumatik -> /opt/passumatik/passumatik
+lrwxrwxrwx 1 root root 26 Feb  3 08:03 /usr/local/bin/passumatik -> /opt/passumatik/passumatik.sh
 ```
 
